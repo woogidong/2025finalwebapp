@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>학생 활동 - 수학감정일기</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="student-container">
+    <header class="student-header">
+      <h1>📚 수학감정일기</h1>
+      <a href="index.html" class="back-btn">← 홈으로</a>
+    </header>
+
+    <!-- 사용자 정보 표시 -->
+    <div id="user-info-header" class="user-info-header"></div>
+
+    <!-- Chatbot 섹션 -->
+    <section id="chatbot-section" class="section chatbot-section">
+      <h2>여러분의 오늘 하루를 선생님에게 들려주세요.</h2>
+      <div class="chat-container">
+        <div id="chat-messages" class="chat-messages"></div>
+        <div class="chat-input-container">
+          <input 
+            type="text" 
+            id="chat-input" 
+            class="chat-input" 
+            placeholder="메시지를 입력하세요..."
+            autocomplete="off"
+          />
+          <button id="send-btn" class="btn btn-send">전송</button>
+        </div>
+      </div>
+      <button id="end-chat-btn" class="btn btn-end-chat" style="display: none;">
+        Chatbot과의 대화 끝내기
+      </button>
+    </section>
+
+    <!-- 일기 작성 섹션 (처음에는 숨김) -->
+    <section id="diary-section" class="diary-section" style="display: none;">
+      <div class="diary-container">
+        <!-- 다이어리 헤더 -->
+        <div class="diary-header">
+          <h2>📔 수학 감정 일기</h2>
+          <p class="diary-date" id="diary-date"></p>
+        </div>
+
+        <!-- 일기장 -->
+        <div class="diary-paper">
+          <div class="diary-lines"></div>
+          <textarea 
+            id="diary-content" 
+            class="diary-textarea" 
+            placeholder="오늘 하루 수학 공부를 하며 느꼈던 감정과 생각을 자유롭게 적어보세요..."
+            rows="12"
+          ></textarea>
+        </div>
+
+        <!-- 오늘의 감정 이모티콘 선택 -->
+        <div class="emotion-section">
+          <h3>오늘의 감정</h3>
+          <p class="emotion-description">오늘 하루를 표현할 수 있는 이모티콘을 선택해주세요</p>
+          
+          <!-- 긍정적인 감정 -->
+          <div class="emotion-category">
+            <h4 class="emotion-category-title emotion-positive-title">
+              <span class="category-icon">☀️</span> 긍정적인 감정
+            </h4>
+            <div class="emotion-grid emotion-grid-positive">
+              <button class="emotion-select-btn" data-emotion="😊">😊</button>
+              <button class="emotion-select-btn" data-emotion="😄">😄</button>
+              <button class="emotion-select-btn" data-emotion="😁">😁</button>
+              <button class="emotion-select-btn" data-emotion="🥳">🥳</button>
+              <button class="emotion-select-btn" data-emotion="😍">😍</button>
+              <button class="emotion-select-btn" data-emotion="🤩">🤩</button>
+              <button class="emotion-select-btn" data-emotion="😎">😎</button>
+              <button class="emotion-select-btn" data-emotion="🙌">🙌</button>
+              <button class="emotion-select-btn" data-emotion="✨">✨</button>
+              <button class="emotion-select-btn" data-emotion="🌟">🌟</button>
+              <button class="emotion-select-btn" data-emotion="❤️">❤️</button>
+              <button class="emotion-select-btn" data-emotion="🎯">🎯</button>
+              <button class="emotion-select-btn" data-emotion="💪">💪</button>
+              <button class="emotion-select-btn" data-emotion="🔥">🔥</button>
+              <button class="emotion-select-btn" data-emotion="⚡">⚡</button>
+              <button class="emotion-select-btn" data-emotion="🚀">🚀</button>
+              <button class="emotion-select-btn" data-emotion="🏆">🏆</button>
+              <button class="emotion-select-btn" data-emotion="💯">💯</button>
+              <button class="emotion-select-btn" data-emotion="⭐">⭐</button>
+              <button class="emotion-select-btn" data-emotion="💫">💫</button>
+              <button class="emotion-select-btn" data-emotion="🌈">🌈</button>
+              <button class="emotion-select-btn" data-emotion="📚">📚</button>
+              <button class="emotion-select-btn" data-emotion="📖">📖</button>
+              <button class="emotion-select-btn" data-emotion="✏️">✏️</button>
+              <button class="emotion-select-btn" data-emotion="📝">📝</button>
+              <button class="emotion-select-btn" data-emotion="💡">💡</button>
+              <button class="emotion-select-btn" data-emotion="🧠">🧠</button>
+              <button class="emotion-select-btn" data-emotion="🤔">🤔</button>
+              <button class="emotion-select-btn" data-emotion="🧐">🧐</button>
+              <button class="emotion-select-btn" data-emotion="📊">📊</button>
+              <button class="emotion-select-btn" data-emotion="📈">📈</button>
+            </div>
+          </div>
+          
+          <!-- 부정적인 감정 -->
+          <div class="emotion-category">
+            <h4 class="emotion-category-title emotion-negative-title">
+              <span class="category-icon">🌙</span> 부정적인 감정
+            </h4>
+            <div class="emotion-grid emotion-grid-negative">
+              <button class="emotion-select-btn" data-emotion="😢">😢</button>
+              <button class="emotion-select-btn" data-emotion="😰">😰</button>
+              <button class="emotion-select-btn" data-emotion="😞">😞</button>
+              <button class="emotion-select-btn" data-emotion="😓">😓</button>
+              <button class="emotion-select-btn" data-emotion="😔">😔</button>
+              <button class="emotion-select-btn" data-emotion="😣">😣</button>
+              <button class="emotion-select-btn" data-emotion="😫">😫</button>
+              <button class="emotion-select-btn" data-emotion="😩">😩</button>
+              <button class="emotion-select-btn" data-emotion="😭">😭</button>
+              <button class="emotion-select-btn" data-emotion="😤">😤</button>
+              <button class="emotion-select-btn" data-emotion="🤢">🤢</button>
+              <button class="emotion-select-btn" data-emotion="😱">😱</button>
+              <button class="emotion-select-btn" data-emotion="😡">😡</button>
+              <button class="emotion-select-btn" data-emotion="😷">😷</button>
+              <button class="emotion-select-btn" data-emotion="🤧">🤧</button>
+              <button class="emotion-select-btn" data-emotion="🤒">🤒</button>
+              <button class="emotion-select-btn" data-emotion="📉">📉</button>
+            </div>
+          </div>
+          
+          <!-- 중립적인 감정 -->
+          <div class="emotion-category">
+            <h4 class="emotion-category-title emotion-neutral-title">
+              <span class="category-icon">🌤️</span> 중립적인 감정
+            </h4>
+            <div class="emotion-grid emotion-grid-neutral">
+              <button class="emotion-select-btn" data-emotion="😌">😌</button>
+              <button class="emotion-select-btn" data-emotion="😐">😐</button>
+              <button class="emotion-select-btn" data-emotion="😶">😶</button>
+              <button class="emotion-select-btn" data-emotion="😑">😑</button>
+              <button class="emotion-select-btn" data-emotion="🤨">🤨</button>
+              <button class="emotion-select-btn" data-emotion="😮">😮</button>
+              <button class="emotion-select-btn" data-emotion="😯">😯</button>
+              <button class="emotion-select-btn" data-emotion="😴">😴</button>
+              <button class="emotion-select-btn" data-emotion="😅">😅</button>
+              <button class="emotion-select-btn" data-emotion="🤷">🤷</button>
+            </div>
+          </div>
+
+          <p class="selected-emotion-display" id="selected-emotion-display"></p>
+        </div>
+
+        <!-- 오늘의 문제 -->
+        <div class="problem-section">
+          <h3>📐 오늘의 문제</h3>
+          
+          <!-- 문제 입력 방식 선택 탭 -->
+          <div class="problem-tabs">
+            <button class="tab-btn active" data-tab="photo">📷 사진</button>
+            <button class="tab-btn" data-tab="text">✏️ 텍스트</button>
+            <button class="tab-btn" data-tab="draw">🎨 그림</button>
+          </div>
+
+          <!-- 사진 업로드 탭 -->
+          <div class="tab-content active" id="tab-photo">
+            <div class="image-upload-area">
+              <label for="problem-image" class="upload-label-new">
+                <span class="upload-icon">📷</span>
+                <span>문제 사진 업로드</span>
+              </label>
+              <input 
+                type="file" 
+                id="problem-image" 
+                accept="image/*" 
+                style="display: none;"
+              />
+              <div id="problem-image-preview" class="problem-image-preview"></div>
+            </div>
+          </div>
+
+          <!-- 텍스트 입력 탭 -->
+          <div class="tab-content" id="tab-text">
+            <textarea 
+              id="problem-text" 
+              class="problem-textarea" 
+              placeholder="문제를 텍스트로 작성해주세요..."
+              rows="8"
+            ></textarea>
+          </div>
+
+          <!-- 그림 그리기 탭 -->
+          <div class="tab-content" id="tab-draw">
+            <div class="drawing-container">
+              <canvas id="drawing-canvas" class="drawing-canvas"></canvas>
+              <div class="drawing-tools">
+                <button class="draw-tool-btn" id="clear-canvas">지우기</button>
+                <button class="draw-tool-btn" id="save-drawing">그림 저장</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- 문제 설명 메모 -->
+          <div class="problem-memo-section">
+            <label for="problem-explanation">문제 설명</label>
+            <textarea 
+              id="problem-explanation" 
+              class="explanation-textarea" 
+              placeholder="이 문제에 대한 설명, 왜 기억에 남는지, 어떻게 풀었는지 등을 적어보세요..."
+              rows="5"
+            ></textarea>
+          </div>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <button id="submit-btn" class="btn btn-submit-diary">제출하기</button>
+      </div>
+    </section>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>
+

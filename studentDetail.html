@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>학생 일기 상세보기</title>
+  <link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+  <div class="teacher-container">
+    <div class="teacher-header">
+      <button class="btn-back" onclick="goBack()">← 뒤로가기</button>
+      <h1 id="student-detail-title">학생 일기 상세보기</h1>
+    </div>
+    
+    <div class="student-detail-container">
+      <div id="student-info-section" class="student-info-section">
+        <p class="loading-text">학생 정보를 불러오는 중...</p>
+      </div>
+      
+      <div id="student-notes-section" class="student-notes-section">
+        <p class="loading-text">일기 목록을 불러오는 중...</p>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="src/studentDetail.js"></script>
+</body>
+</html>
+

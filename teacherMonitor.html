@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>교사 모니터링 - Math Emotion Diary</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/src/styles.css">
+</head>
+<body>
+  <div class="teacher-container">
+    <header class="teacher-header">
+      <h1>👩‍🏫 교사 모니터링</h1>
+      <a href="index.html" class="back-btn">← 홈으로</a>
+    </header>
+    
+    <div id="admin-content" class="teacher-content" style="display: none;">
+      <!-- 탭 네비게이션 -->
+      <div class="teacher-tabs">
+        <button class="tab-btn active" data-tab="date-filter" onclick="switchTab('date-filter')">
+          📅 날짜별 확인
+        </button>
+        <button class="tab-btn" data-tab="class-management" onclick="switchTab('class-management')">
+          👥 반별관리
+        </button>
+        <button class="tab-btn" data-tab="unreviewed" onclick="switchTab('unreviewed')">
+          📝 확인하지 않은 일기
+        </button>
+        <button class="tab-btn" data-tab="token-ranking" onclick="switchTab('token-ranking')">
+          🏆 토큰 랭킹
+        </button>
+      </div>
+      
+      <!-- 날짜별 확인 탭 -->
+      <div id="date-filter-tab" class="tab-content active">
+        <div class="date-filter-layout">
+          <!-- 좌측: 날짜 필터 -->
+          <div class="date-filter-sidebar">
+            <div class="sidebar-section">
+              <h3>📅 날짜 필터</h3>
+              <div id="date-filter-list" class="date-filter-list">
+                <p class="loading-text">날짜 목록을 불러오는 중...</p>
+              </div>
+            </div>
+          </div>
+          
+          <!-- 우측: 학생 목록 -->
+          <div class="date-filter-main">
+            <div class="date-filter-header">
+              <h2 id="selected-date-title">날짜를 선택해주세요</h2>
+            </div>
+            
+            <div id="date-students-list" class="date-students-list">
+              <p class="empty-message">좌측에서 날짜를 선택하여 학생 목록을 확인하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 반별관리 탭 -->
+      <div id="class-management-tab" class="tab-content">
+        <div class="class-management-container">
+          <div class="class-filter-section">
+            <h3>반 선택</h3>
+            <div id="class-filter-list" class="class-filter-list">
+              <p class="loading-text">반 목록을 불러오는 중...</p>
+            </div>
+          </div>
+          <div class="class-students-section">
+            <h2 id="selected-class-title">반을 선택해주세요</h2>
+            <div id="students-list-container" class="students-list-container">
+              <p class="empty-message">좌측에서 반을 선택하여 학생 정보를 확인하세요.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 확인하지 않은 일기 탭 -->
+      <div id="unreviewed-tab" class="tab-content">
+        <div class="unreviewed-container">
+          <div class="unreviewed-header">
+            <h2>📝 확인하지 않은 일기</h2>
+            
+            <!-- 정렬 컨트롤 -->
+            <div class="sort-controls">
+              <div class="sort-group">
+                <label>정렬 기준:</label>
+                <select id="sort-by" class="sort-select" onchange="applyUnreviewedSort()">
+                  <option value="class">반</option>
+                  <option value="date">일기 작성 날짜</option>
+                </select>
+              </div>
+              <div class="sort-order-buttons">
+                <button id="sort-asc-btn" class="sort-order-btn active" onclick="setSortOrder('asc')">
+                  ↑ 오름차순
+                </button>
+                <button id="sort-desc-btn" class="sort-order-btn" onclick="setSortOrder('desc')">
+                  ↓ 내림차순
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div id="unreviewed-list" class="unreviewed-list">
+            <p class="loading-text">일기 목록을 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 토큰 랭킹 탭 -->
+      <div id="token-ranking-tab" class="tab-content">
+        <div class="token-ranking-container">
+          <div class="token-ranking-header">
+            <h2>🏆 토큰 랭킹</h2>
+            <p class="ranking-description">학생들의 파이 토큰 개수 순위입니다.</p>
+          </div>
+          
+          <div id="token-ranking-list" class="token-ranking-list">
+            <p class="loading-text">랭킹을 불러오는 중...</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div id="access-denied" style="display: none;">
+      <div class="error-message">
+        <h2>⚠️ 접근 권한이 없습니다</h2>
+        <p>이 페이지는 관리자만 접근할 수 있습니다.</p>
+        <button onclick="window.location.href='index.html'" class="btn btn-login">메인으로 돌아가기</button>
+      </div>
+    </div>
+  </div>
+  
+  <script type="module" src="/src/admin.js"></script>
+</body>
+</html>
