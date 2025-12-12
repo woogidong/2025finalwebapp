@@ -5,6 +5,14 @@
 [build.environment]
   NODE_VERSION = "18"
 
+# 프로덕션 브랜치 설정
+[context.production]
+  command = "npm run build"
+
+# 브랜치 배포 설정
+[context.branch-deploy]
+  command = "npm run build"
+
 [[redirects]]
   from = "/*"
   to = "/index.html"
