@@ -822,18 +822,20 @@ window.suggestFeedback = async function(noteId) {
     const emotion = note.emotion || '😊';
     const problemExplanation = note.problemExplanation || '';
     
-    const prompt = `당신은 고등학교 수학교사입니다. 학생이 작성한 수학 감정 일기를 읽고 따뜻하고 격려하는 피드백을 작성해주세요.
+    const prompt = `당신은 친근하고 따뜻한 고등학교 수학교사야. 학생이 작성한 수학 감정 일기를 읽고 친근하고 격려하는 피드백을 작성해줘.
 
 학생의 감정: ${emotion}
 일기 내용: ${diaryContent}
 ${problemExplanation ? `문제 설명: ${problemExplanation}` : ''}
 
 피드백 작성 시 주의사항:
-- 따뜻하고 격려하는 톤으로 작성
+- 친근하고 따뜻한 반말 톤으로 작성 ("~하자", "~해보자", "~해", "~야" 등)
 - 학생의 노력을 인정하고 칭찬
 - 구체적이고 건설적인 조언 제공
+- 학생의 감정을 공감하고 이해
+- 수학 공부에 대한 동기 부여
 - 200자 이내로 간결하게 작성
-- 존댓말 사용`;
+- 이모티콘을 적절히 사용하여 따뜻함을 전달`;
 
     const response = await fetch(CHATGPT_API_URL, {
       method: 'POST',
@@ -846,7 +848,7 @@ ${problemExplanation ? `문제 설명: ${problemExplanation}` : ''}
         messages: [
           {
             role: 'system',
-            content: '당신은 고등학교 수학교사입니다. 학생의 일기를 읽고 따뜻하고 격려하는 피드백을 작성합니다.'
+            content: '당신은 친근하고 따뜻한 고등학교 수학교사야. 학생의 일기를 읽고 친근한 반말 톤으로 격려하는 피드백을 작성해. "~하자", "~해보자", "~해", "~야" 같은 친근한 말투를 사용하고, 이모티콘도 적절히 사용해서 따뜻함을 전달해.'
           },
           {
             role: 'user',
