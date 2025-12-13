@@ -1859,6 +1859,14 @@ h3 {
   font-family: 'HakgyoansimUndongjang', 'HakgyoansimGeurimilgi', 'Noto Sans KR', sans-serif;
 }
 
+.problem-description {
+  color: var(--warm-brown);
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+  text-align: center;
+}
+
 /* 탭 스타일 */
 .problem-tabs {
   display: flex;
