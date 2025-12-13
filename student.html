@@ -60,6 +60,46 @@
           ></textarea>
         </div>
 
+        <!-- 오늘의 수학 공부시간 -->
+        <div class="study-time-section">
+          <h3>⏰ 오늘의 수학 공부시간</h3>
+          <div class="study-time-container">
+            <div class="study-time-item">
+              <label for="study-hours">시간</label>
+              <div class="slider-wrapper">
+                <input 
+                  type="range" 
+                  id="study-hours" 
+                  class="study-time-slider"
+                  min="0" 
+                  max="12" 
+                  value="0"
+                  step="1"
+                />
+                <span class="slider-value" id="study-hours-value">0</span>
+              </div>
+            </div>
+            <div class="study-time-item">
+              <label for="study-minutes">분</label>
+              <div class="slider-wrapper">
+                <input 
+                  type="range" 
+                  id="study-minutes" 
+                  class="study-time-slider"
+                  min="0" 
+                  max="59" 
+                  value="0"
+                  step="5"
+                />
+                <span class="slider-value" id="study-minutes-value">0</span>
+              </div>
+            </div>
+            <div class="study-time-summary">
+              <span class="study-time-total">총 공부시간: <strong id="study-time-total">0시간 0분</strong></span>
+            </div>
+          </div>
+        </div>
+
         <!-- 오늘의 감정 이모티콘 선택 -->
         <div class="emotion-section">
           <h3>오늘의 감정</h3>

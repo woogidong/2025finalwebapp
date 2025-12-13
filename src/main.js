@@ -27,6 +27,8 @@ let chatEndTime = null; // 대화 끝내기 버튼 클릭 시간
 // 일기 작성 관련 상태
 let diaryContent = '';
 let selectedEmotionIcon = null; // 선택한 감정 이모티콘
+let studyHours = 0; // 공부 시간 (시간)
+let studyMinutes = 0; // 공부 시간 (분)
 let problemType = 'photo'; // 'photo', 'text', 'draw'
 let problemImage = null;
 let problemText = '';
@@ -821,6 +823,9 @@ async function handleSubmit() {
       console.error('사용자 정보 조회 실패:', error);
     }
 
+    // 공부시간 업데이트 (최종 확인)
+    updateStudyTime();
+
     // Firestore에 저장할 데이터
     const data = {
       userName: userInfoData?.name || currentUser.displayName || '사용자',
@@ -829,6 +834,8 @@ async function handleSubmit() {
       chatDuration: chatDuration, // 초 단위
       emotion: selectedEmotionIcon, // 선택한 감정 이모티콘
       diaryContent: diaryContentTextarea.value.trim(),
+      studyHours: studyHours, // 공부 시간 (시간)
+      studyMinutes: studyMinutes, // 공부 시간 (분)
       problemType: problemType,
       problemData: problemData,
       problemExplanation: problemExplanationTextarea.value.trim(),
@@ -936,6 +943,37 @@ document.addEventListener('click', (e) => {
     selectEmotionIcon(e.target.dataset.emotion, e.target);
   }
 });
+
+// 공부시간 슬라이더 이벤트
+const studyHoursSlider = document.getElementById('study-hours');
+const studyMinutesSlider = document.getElementById('study-minutes');
+const studyHoursValue = document.getElementById('study-hours-value');
+const studyMinutesValue = document.getElementById('study-minutes-value');
+const studyTimeTotal = document.getElementById('study-time-total');
+
+function updateStudyTime() {
+  if (studyHoursSlider && studyMinutesSlider) {
+    studyHours = parseInt(studyHoursSlider.value) || 0;
+    studyMinutes = parseInt(studyMinutesSlider.value) || 0;
+    
+    if (studyHoursValue) {
+      studyHoursValue.textContent = studyHours;
+    }
+    if (studyMinutesValue) {
+      studyMinutesValue.textContent = studyMinutes;
+    }
+    if (studyTimeTotal) {
+      studyTimeTotal.textContent = `${studyHours}시간 ${studyMinutes}분`;
+    }
+  }
+}
+
+if (studyHoursSlider) {
+  studyHoursSlider.addEventListener('input', updateStudyTime);
+}
+if (studyMinutesSlider) {
+  studyMinutesSlider.addEventListener('input', updateStudyTime);
+}
 
 // 제출 버튼
 if (submitBtn) {

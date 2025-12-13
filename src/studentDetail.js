@@ -449,6 +449,14 @@ window.openFeedbackWindow = function(noteId) {
               <p><strong>작성 날짜:</strong> ${writeDate}</p>
             </div>
           </div>
+          ${(note.studyHours !== undefined || note.studyMinutes !== undefined) ? `
+            <div class="form-group">
+              <label>⏰ 수학 공부시간</label>
+              <div class="detail-info">
+                ${(note.studyHours || 0)}시간 ${(note.studyMinutes || 0)}분
+              </div>
+            </div>
+          ` : ''}
           <div class="form-group">
             <label>오늘의 감정</label>
             <div class="detail-emotion">

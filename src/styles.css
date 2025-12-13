@@ -1867,6 +1867,130 @@ h3 {
   text-align: center;
 }
 
+/* 공부시간 섹션 */
+.study-time-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffe6cc 100%);
+  border-radius: 15px;
+  box-shadow: 0 4px 15px rgba(255, 152, 0, 0.1);
+}
+
+.study-time-section h3 {
+  font-size: 1.3rem;
+  color: var(--warm-dark);
+  margin-bottom: 1.5rem;
+  font-family: 'HakgyoansimUndongjang', 'HakgyoansimGeurimilgi', 'Noto Sans KR', sans-serif;
+  text-align: center;
+}
+
+.study-time-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.study-time-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.study-time-item label {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--warm-dark);
+  text-align: center;
+}
+
+.slider-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem;
+}
+
+.study-time-slider {
+  flex: 1;
+  height: 8px;
+  border-radius: 5px;
+  background: linear-gradient(to right, #ff9800, #ff6b00);
+  outline: none;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.study-time-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9800, #ff6b00);
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.study-time-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
+}
+
+.study-time-slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ff9800, #ff6b00);
+  cursor: pointer;
+  border: none;
+  box-shadow: 0 2px 8px rgba(255, 152, 0, 0.4);
+  transition: all 0.3s ease;
+}
+
+.study-time-slider::-moz-range-thumb:hover {
+  transform: scale(1.2);
+  box-shadow: 0 4px 12px rgba(255, 152, 0, 0.6);
+}
+
+.study-time-slider:active {
+  cursor: grabbing;
+}
+
+.slider-value {
+  min-width: 50px;
+  text-align: center;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--warm-dark);
+  background: white;
+  padding: 0.5rem 1rem;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.study-time-summary {
+  text-align: center;
+  padding: 1rem;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-top: 0.5rem;
+}
+
+.study-time-total {
+  font-size: 1.1rem;
+  color: var(--warm-dark);
+}
+
+.study-time-total strong {
+  font-size: 1.3rem;
+  color: #ff6b00;
+  font-weight: 700;
+}
+
 /* 탭 스타일 */
 .problem-tabs {
   display: flex;
