@@ -298,6 +298,13 @@ async function createCalendar(notesData, year, month) {
     let onClickHandler = '';
     let cursorStyle = '';
     
+    // isToday는 이미 위에서 선언됨 (284번 줄: isCurrentMonth && day === now.getDate())
+    // 일반 모드에서 오늘 날짜인지 확인하기 위해 추가 검증 필요
+    const today = new Date();
+    const isTodayForWriting = year === today.getFullYear() && 
+                              month === today.getMonth() && 
+                              day === today.getDate();
+    
     if (isTestMode) {
       // 테스트 모드: 모든 날짜 클릭 가능
       if (hasNote) {
@@ -309,11 +316,17 @@ async function createCalendar(notesData, year, month) {
       }
       cursorStyle = 'cursor: pointer;';
     } else {
-      // 일반 모드: 일기가 있는 날짜만 클릭 가능
+      // 일반 모드 (학생 계정)
       if (hasNote) {
+        // 일기가 있는 날짜: 수정 가능 (모달 열기)
         onClickHandler = `onclick="openCalendarEmotionModal('${dateKey}', ${day}, ${year}, ${month + 1})"`;
         cursorStyle = 'cursor: pointer;';
+      } else if (isTodayForWriting) {
+        // 오늘 날짜이고 일기가 없으면: 일기 작성 가능
+        onClickHandler = `onclick="openDiaryForDate('${dateKey}', ${year}, ${month + 1}, ${day})"`;
+        cursorStyle = 'cursor: pointer;';
       }
+      // 오늘 날짜가 아니고 일기가 없으면: 클릭 불가능 (onClickHandler와 cursorStyle이 빈 문자열로 유지)
     }
     
     calendarHTML += `
@@ -1506,10 +1519,23 @@ window.openDiaryForDate = function(dateKey, year, month, day) {
   const isTestMode = urlParams.get('test') === 'student';
   
   if (isTestMode) {
-    // 테스트 모드: 팝업으로 일기 작성
+    // 테스트 모드: 팝업으로 일기 작성 (모든 날짜 허용)
     openDiaryModal(dateKey, year, month, day);
   } else {
-    // 일반 모드: student.html로 이동
+    // 일반 모드: 오늘 날짜인지 확인
+    const today = new Date();
+    const selectedDate = new Date(year, month - 1, day);
+    const isToday = today.getFullYear() === year && 
+                    today.getMonth() === month - 1 && 
+                    today.getDate() === day;
+    
+    if (!isToday) {
+      // 오늘 날짜가 아니면 일기 작성 불가
+      alert('오늘 날짜에만 일기를 작성할 수 있습니다.');
+      return;
+    }
+    
+    // 오늘 날짜: student.html로 이동
     const url = new URL('student.html', window.location.origin);
     url.searchParams.set('date', dateKey);
     url.searchParams.set('year', year);
