@@ -263,7 +263,7 @@ async function initializeTeacherMonitoring() {
     
     // 반별관리 탭 초기화
     try {
-      initializeClassManagement(allNotes);
+      initializeClassManagement(allNotes, usersMap);
     } catch (error) {
       console.error('반별관리 탭 초기화 실패:', error);
     }
@@ -1253,11 +1253,11 @@ window.closeFeedbackWindow = function() {
 };
 
 // 반별관리 탭 초기화
-function initializeClassManagement(allNotes) {
-  if (!allNotes || allNotes.length === 0) {
+function initializeClassManagement(allNotes, usersMap) {
+  if (!usersMap || usersMap.size === 0) {
     const classFilterList = document.getElementById('class-filter-list');
     if (classFilterList) {
-      classFilterList.innerHTML = '<p class="empty-text">반 정보가 없습니다.</p>';
+      classFilterList.innerHTML = '<p class="empty-text">학생 정보가 없습니다.</p>';
     }
     return;
   }
@@ -1266,14 +1266,70 @@ function initializeClassManagement(allNotes) {
     // 반별로 그룹화
     const classMap = new Map();
     
-    allNotes.forEach(({ id, data: note }) => {
+    // 일기가 있는 학생들을 먼저 처리
+    if (allNotes && allNotes.length > 0) {
+      allNotes.forEach(({ id, data: note }) => {
+        try {
+          const userInfo = note.userInfo || {};
+          const grade = userInfo.grade || '';
+          const classNum = userInfo.classNum || '';
+          
+          if (grade && classNum) {
+            const classKey = `${grade}-${classNum}`;
+            if (!classMap.has(classKey)) {
+              classMap.set(classKey, {
+                grade: grade,
+                classNum: classNum,
+                students: new Map()
+              });
+            }
+            
+            const userId = note.userId;
+            if (userId) {
+              const classData = classMap.get(classKey);
+              if (!classData.students.has(userId)) {
+                // 사용자 정보에서 파이토큰 가져오기
+                const pieTokens = userInfo.pieTokens || 0;
+                classData.students.set(userId, {
+                  userId: userId,
+                  name: note.userName || userInfo.name || '이름 없음',
+                  studentId: userInfo.studentId || '',
+                  number: userInfo.number || '',
+                  pieTokens: pieTokens,
+                  notes: []
+                });
+              } else {
+                // 이미 존재하는 학생의 경우 파이토큰 업데이트 (최신 정보 반영)
+                const existingStudent = classData.students.get(userId);
+                if (userInfo.pieTokens !== undefined) {
+                  existingStudent.pieTokens = userInfo.pieTokens;
+                }
+              }
+              classData.students.get(userId).notes.push({ id, note });
+            }
+          }
+        } catch (error) {
+          console.error('반별 그룹화 중 오류:', id, error);
+        }
+      });
+    }
+    
+    // 일기를 작성하지 않은 학생들도 추가
+    usersMap.forEach((userData, userId) => {
       try {
-        const userInfo = note.userInfo || {};
-        const grade = userInfo.grade || '';
-        const classNum = userInfo.classNum || '';
+        // 관리자 계정 제외
+        if (isTestModeData({ userId: userId })) {
+          return;
+        }
         
+        const grade = userData.grade || '';
+        const classNum = userData.classNum || '';
+        
+        // 학년과 반 정보가 있는 학생만 추가
         if (grade && classNum) {
           const classKey = `${grade}-${classNum}`;
+          
+          // 반이 없으면 생성
           if (!classMap.has(classKey)) {
             classMap.set(classKey, {
               grade: grade,
@@ -1282,32 +1338,21 @@ function initializeClassManagement(allNotes) {
             });
           }
           
-          const userId = note.userId;
-          if (userId) {
-            const classData = classMap.get(classKey);
-            if (!classData.students.has(userId)) {
-              // 사용자 정보에서 파이토큰 가져오기
-              const pieTokens = userInfo.pieTokens || 0;
-              classData.students.set(userId, {
-                userId: userId,
-                name: note.userName || userInfo.name || '이름 없음',
-                studentId: userInfo.studentId || '',
-                number: userInfo.number || '',
-                pieTokens: pieTokens,
-                notes: []
-              });
-            } else {
-              // 이미 존재하는 학생의 경우 파이토큰 업데이트 (최신 정보 반영)
-              const existingStudent = classData.students.get(userId);
-              if (userInfo.pieTokens !== undefined) {
-                existingStudent.pieTokens = userInfo.pieTokens;
-              }
-            }
-            classData.students.get(userId).notes.push({ id, note });
+          // 이미 일기로 추가된 학생이 아니면 추가
+          const classData = classMap.get(classKey);
+          if (!classData.students.has(userId)) {
+            classData.students.set(userId, {
+              userId: userId,
+              name: userData.name || '이름 없음',
+              studentId: userData.studentId || '',
+              number: userData.number || '',
+              pieTokens: userData.pieTokens || 0,
+              notes: [] // 일기가 없으므로 빈 배열
+            });
           }
         }
       } catch (error) {
-        console.error('반별 그룹화 중 오류:', id, error);
+        console.error('학생 정보 처리 중 오류:', userId, error);
       }
     });
     

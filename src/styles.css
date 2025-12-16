@@ -2621,6 +2621,12 @@ h3 {
   box-shadow: 0 4px 15px rgba(255, 140, 105, 0.3);
 }
 
+/* 확인하지 않은 일기 탭 버튼 폰트 크기 조정 */
+.tab-btn[data-tab="unreviewed"] {
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
 .tab-content {
   display: none;
 }
@@ -3562,7 +3568,8 @@ h3 {
   margin: 0 0 1.5rem 0;
   font-family: 'HakgyoansimUndongjang', 'HakgyoansimGeurimilgi', 'Noto Sans KR', sans-serif;
   color: var(--warm-dark);
-  font-size: 1.8rem;
+  font-size: 1.5rem;
+  white-space: nowrap;
 }
 
 /* 확인하지 않은 일기 정렬 컨트롤 */

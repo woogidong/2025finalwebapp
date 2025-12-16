@@ -77,7 +77,7 @@ function displayUserInfo(user) {
       <div class="user-info-card">
         <p><strong>${user.displayName || '사용자'}</strong></p>
         <p class="user-email">${user.email}</p>
-      </div>
+    </div>
     `;
   }
 }

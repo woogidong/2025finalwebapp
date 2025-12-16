@@ -85,14 +85,20 @@ let currentCalendarYear = new Date().getFullYear();
 let currentCalendarMonth = new Date().getMonth(); // 0-11 형식
 
 // 학번 파싱 함수 (5자리 숫자: 1자리=학년, 2-3자리=반, 4-5자리=번호)
+// 0으로 시작하는 학번도 올바르게 처리 (예: 04152 → 0학년, 41반, 52번)
 function parseStudentId(studentId) {
-  if (!studentId || studentId.length !== 5 || !/^\d+$/.test(studentId)) {
+  // 문자열로 변환하여 앞의 0이 사라지지 않도록 보장
+  const studentIdStr = String(studentId).trim();
+  
+  // 5자리 숫자인지 확인 (앞의 0 포함)
+  if (!studentIdStr || studentIdStr.length !== 5 || !/^\d{5}$/.test(studentIdStr)) {
     return null; // 유효하지 않은 학번 형식
   }
   
-  const grade = parseInt(studentId[0], 10); // 1번째 자리: 학년
-  const classNum = parseInt(studentId.substring(1, 3), 10); // 2-3번째 자리: 반
-  const number = parseInt(studentId.substring(3, 5), 10); // 4-5번째 자리: 번호
+  // 각 자리를 문자열로 추출한 후 숫자로 변환 (0도 올바르게 처리)
+  const grade = parseInt(studentIdStr[0], 10); // 1번째 자리: 학년 (0 포함)
+  const classNum = parseInt(studentIdStr.substring(1, 3), 10); // 2-3번째 자리: 반
+  const number = parseInt(studentIdStr.substring(3, 5), 10); // 4-5번째 자리: 번호
   
   return {
     grade,
@@ -1136,9 +1142,9 @@ function showUserInfoModal(user) {
         return;
       }
       
-      // 학번 형식 검증 (5자리 숫자)
-      if (studentId.length !== 5 || !/^\d+$/.test(studentId)) {
-        alert('학번은 5자리 숫자로 입력해주세요. (예: 30901)');
+      // 학번 형식 검증 (5자리 숫자, 0으로 시작 가능)
+      if (studentId.length !== 5 || !/^\d{5}$/.test(studentId)) {
+        alert('학번은 5자리 숫자로 입력해주세요. (예: 30901 또는 04152)');
         return;
       }
       
@@ -1313,9 +1319,9 @@ window.saveProfileEdit = async function() {
     return;
   }
   
-  // 학번 형식 검증 (5자리 숫자)
-  if (studentId.length !== 5 || !/^\d+$/.test(studentId)) {
-    alert('학번은 5자리 숫자로 입력해주세요. (예: 30901)');
+  // 학번 형식 검증 (5자리 숫자, 0으로 시작 가능)
+  if (studentId.length !== 5 || !/^\d{5}$/.test(studentId)) {
+    alert('학번은 5자리 숫자로 입력해주세요. (예: 30901 또는 04152)');
     return;
   }
   
