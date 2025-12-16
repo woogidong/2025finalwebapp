@@ -162,6 +162,9 @@ async function initializeTeacherMonitoring() {
     
     console.log('사용자 정보 로딩 완료:', usersMap.size, '명');
     
+    // 전역 변수에 저장 (다른 함수에서도 사용할 수 있도록)
+    window.usersMap = usersMap;
+    
     // 노트에 사용자 정보 추가
     allNotes.forEach(({ data: note }) => {
       if (note.userId && usersMap.has(note.userId)) {
@@ -508,12 +511,14 @@ function displayDateStudentsList(notes) {
     }
     
     const userInfo = note.userInfo || {};
-    const studentName = note.userName || userInfo.name || '이름 없음';
+    // usersMap에서 최신 사용자 정보 가져오기 (개인정보 수정 반영)
+    const latestUserInfo = window.usersMap?.get(userId) || userInfo;
+    const studentName = latestUserInfo.name || note.userName || '이름 없음';
     
-    // userInfo에서 학년, 반, 번호 정보 가져오기
-    const grade = userInfo.grade || '';
-    const classNum = userInfo.classNum || '';
-    const number = userInfo.number || '';
+    // 최신 사용자 정보에서 학년, 반, 번호 정보 가져오기
+    const grade = latestUserInfo.grade || userInfo.grade || '';
+    const classNum = latestUserInfo.classNum || userInfo.classNum || '';
+    const number = latestUserInfo.number || userInfo.number || '';
     
     let className = '반 정보 없음';
     if (grade && classNum) {
@@ -521,7 +526,7 @@ function displayDateStudentsList(notes) {
     }
     
     const studentNumber = number || '번호 없음';
-    const studentId = userInfo.studentId || note.userStudentId || '';
+    const studentId = latestUserInfo.studentId || userInfo.studentId || note.userStudentId || '';
     
     console.log('학생 정보:', { userId, studentName, className, studentNumber, studentId });
     
@@ -534,6 +539,13 @@ function displayDateStudentsList(notes) {
         studentId: studentId,
         notes: []
       });
+    } else {
+      // 이미 존재하는 학생의 경우 최신 정보로 업데이트
+      const existingStudent = studentsMap.get(userId);
+      existingStudent.name = studentName;
+      existingStudent.className = className;
+      existingStudent.number = studentNumber;
+      existingStudent.studentId = studentId;
     }
     
     studentsMap.get(userId).notes.push({ id, note });
@@ -1044,10 +1056,18 @@ window.openFeedbackWindow = function(noteId) {
   const note = noteData.data || noteData;
   const userInfo = note.userInfo || {};
   
-  // 학생 정보 추출
-  const className = userInfo.classNum ? `${userInfo.grade}학년 ${userInfo.classNum}반` : '반 정보 없음';
-  const studentNumber = userInfo.number || '번호 없음';
-  const studentName = note.userName || userInfo.name || '이름 없음';
+  // usersMap에서 최신 사용자 정보 가져오기 (개인정보 수정 반영)
+  const userId = note.userId;
+  const latestUserInfo = window.usersMap?.get(userId) || userInfo;
+  
+  // 학생 정보 추출 (최신 정보 우선)
+  const grade = latestUserInfo.grade || userInfo.grade || '';
+  const classNum = latestUserInfo.classNum || userInfo.classNum || '';
+  const number = latestUserInfo.number || userInfo.number || '';
+  const className = classNum ? `${grade}학년 ${classNum}반` : '반 정보 없음';
+  const studentNumber = number || '번호 없음';
+  const studentName = latestUserInfo.name || note.userName || userInfo.name || '이름 없음';
+  const studentId = latestUserInfo.studentId || userInfo.studentId || note.userStudentId || '';
   const writeDate = note.activityDate || '';
   
   // 문제 내용 생성
@@ -1290,22 +1310,29 @@ function initializeClassManagement(allNotes, usersMap) {
             const userId = note.userId;
             if (userId) {
               const classData = classMap.get(classKey);
+              // usersMap에서 최신 사용자 정보 가져오기 (개인정보 수정 반영)
+              const latestUserInfo = usersMap.get(userId) || userInfo;
+              
               if (!classData.students.has(userId)) {
                 // 사용자 정보에서 파이토큰 가져오기
-                const pieTokens = userInfo.pieTokens || 0;
+                const pieTokens = latestUserInfo.pieTokens || 0;
                 classData.students.set(userId, {
                   userId: userId,
-                  name: note.userName || userInfo.name || '이름 없음',
-                  studentId: userInfo.studentId || '',
-                  number: userInfo.number || '',
+                  name: latestUserInfo.name || note.userName || '이름 없음', // 최신 사용자 정보 우선
+                  studentId: latestUserInfo.studentId || '',
+                  number: latestUserInfo.number || '',
                   pieTokens: pieTokens,
                   notes: []
                 });
               } else {
-                // 이미 존재하는 학생의 경우 파이토큰 업데이트 (최신 정보 반영)
+                // 이미 존재하는 학생의 경우 최신 정보로 업데이트
                 const existingStudent = classData.students.get(userId);
-                if (userInfo.pieTokens !== undefined) {
-                  existingStudent.pieTokens = userInfo.pieTokens;
+                // 최신 사용자 정보로 업데이트 (개인정보 수정 반영)
+                existingStudent.name = latestUserInfo.name || existingStudent.name || '이름 없음';
+                existingStudent.studentId = latestUserInfo.studentId || existingStudent.studentId;
+                existingStudent.number = latestUserInfo.number || existingStudent.number;
+                if (latestUserInfo.pieTokens !== undefined) {
+                  existingStudent.pieTokens = latestUserInfo.pieTokens;
                 }
               }
               classData.students.get(userId).notes.push({ id, note });
@@ -1681,9 +1708,16 @@ function displayUnreviewedList(notes) {
   let html = '';
   notes.forEach(({ id, data: note }) => {
     const userInfo = note.userInfo || {};
-    const className = userInfo.classNum ? `${userInfo.grade}학년 ${userInfo.classNum}반` : '반 정보 없음';
-    const studentNumber = userInfo.number || '번호 없음';
-    const studentName = note.userName || userInfo.name || '이름 없음';
+    // usersMap에서 최신 사용자 정보 가져오기 (개인정보 수정 반영)
+    const userId = note.userId;
+    const latestUserInfo = window.usersMap?.get(userId) || userInfo;
+    
+    const grade = latestUserInfo.grade || userInfo.grade || '';
+    const classNum = latestUserInfo.classNum || userInfo.classNum || '';
+    const number = latestUserInfo.number || userInfo.number || '';
+    const className = classNum ? `${grade}학년 ${classNum}반` : '반 정보 없음';
+    const studentNumber = number || '번호 없음';
+    const studentName = latestUserInfo.name || note.userName || userInfo.name || '이름 없음';
     const writeDate = note.activityDate || '';
     const emotion = note.emotion || '😊';
     

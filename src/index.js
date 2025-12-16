@@ -1,7 +1,7 @@
 // Firebase 초기화 및 인증 관리
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, query, where, getDocs, orderBy, doc, deleteDoc, updateDoc, setDoc, getDoc, arrayUnion, writeBatch } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, orderBy, doc, deleteDoc, updateDoc, setDoc, getDoc, arrayUnion } from 'firebase/firestore';
 import { firebaseConfig, teacherEmails, adminUids, isFirebaseConfigValid } from './firebaseConfig.js';
 
 // Firebase 초기화
@@ -1380,24 +1380,20 @@ window.saveProfileEdit = async function() {
       const notesSnapshot = await getDocs(notesQuery);
       
       if (notesSnapshot.size > 0) {
-        // Batch write를 사용하여 효율적으로 업데이트
-        const batch = writeBatch(db);
-        let updateCount = 0;
-        
+        // 각 일기를 개별적으로 업데이트
+        const updatePromises = [];
         notesSnapshot.forEach((docSnapshot) => {
           const noteRef = doc(db, 'studentNotes', docSnapshot.id);
-          batch.update(noteRef, {
-            userName: userName,
-            userStudentId: studentId,
-            // grade, classNum, number는 일기 작성 시점의 정보이므로 업데이트하지 않음
-            // (학생이 반을 옮긴 경우를 고려)
-          });
-          updateCount++;
+          updatePromises.push(
+            updateDoc(noteRef, {
+              userName: userName,
+              userStudentId: studentId
+            })
+          );
         });
         
-        // Batch 실행
-        await batch.commit();
-        console.log(`${updateCount}개의 일기 정보가 업데이트되었습니다.`);
+        await Promise.all(updatePromises);
+        console.log(`${notesSnapshot.size}개의 일기 정보가 업데이트되었습니다.`);
       }
     } catch (error) {
       console.error('일기 정보 업데이트 실패:', error);
