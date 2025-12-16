@@ -1,7 +1,7 @@
 // Firebase 초기화 및 인증 관리
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from 'firebase/auth';
-import { getFirestore, collection, query, where, getDocs, orderBy, doc, deleteDoc, updateDoc, setDoc, getDoc, arrayUnion } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, orderBy, doc, deleteDoc, updateDoc, setDoc, getDoc, arrayUnion, writeBatch } from 'firebase/firestore';
 import { firebaseConfig, teacherEmails, adminUids, isFirebaseConfigValid } from './firebaseConfig.js';
 
 // Firebase 초기화
@@ -836,19 +836,34 @@ window.closeEditModal = function() {
 };
 
 // 노트 상세 보기 모달 열기
-window.openNoteDetailModal = function(noteId) {
+window.openNoteDetailModal = async function(noteId) {
   if (!db) return;
   
-  // 노트 데이터 찾기
-  const noteData = notesDataWithIds.find(item => item.id === noteId);
-  if (!noteData) {
-    alert('노트를 찾을 수 없습니다.');
-    return;
-  }
-  
-  const note = noteData.data || noteData;
-  
-  // 문제 내용 생성
+  try {
+    // Firestore에서 최신 데이터 가져오기 (피드백 업데이트 반영)
+    const noteRef = doc(db, 'studentNotes', noteId);
+    const noteSnap = await getDoc(noteRef);
+    
+    if (!noteSnap.exists()) {
+      alert('노트를 찾을 수 없습니다.');
+      return;
+    }
+    
+    // 최신 데이터 사용 (피드백이 업데이트되었을 수 있으므로)
+    const note = noteSnap.data();
+    
+    // 기존 데이터와 병합 (최신 피드백이 우선)
+    const existingNoteData = notesDataWithIds.find(item => item.id === noteId);
+    if (existingNoteData) {
+      // 최신 피드백 정보로 업데이트
+      Object.assign(existingNoteData.data || existingNoteData, {
+        feedback: note.feedback,
+        feedbackDate: note.feedbackDate,
+        receivedPieToken: note.receivedPieToken
+      });
+    }
+    
+    // 문제 내용 생성
   let problemContentHTML = '';
   if (note.problemData) {
     if (note.problemData.type === 'photo' && note.problemData.imageURL) {
@@ -995,10 +1010,14 @@ window.openNoteDetailModal = function(noteId) {
       }
     };
     document.addEventListener('keydown', escapeHandler);
+    }
+    
+    // 스크롤 방지
+    document.body.style.overflow = 'hidden';
+  } catch (error) {
+    console.error('노트 상세보기 불러오기 실패:', error);
+    alert('노트를 불러오는 중 오류가 발생했습니다.');
   }
-  
-  // 스크롤 방지
-  document.body.style.overflow = 'hidden';
 };
 
 // 노트 상세 보기 모달 닫기
@@ -1351,6 +1370,39 @@ window.saveProfileEdit = async function() {
       displayName: userName,
       updatedAt: new Date().toISOString()
     });
+    
+    // 기존에 작성한 모든 일기의 개인정보도 업데이트
+    try {
+      const notesQuery = query(
+        collection(db, 'studentNotes'),
+        where('userId', '==', currentUserId)
+      );
+      const notesSnapshot = await getDocs(notesQuery);
+      
+      if (notesSnapshot.size > 0) {
+        // Batch write를 사용하여 효율적으로 업데이트
+        const batch = writeBatch(db);
+        let updateCount = 0;
+        
+        notesSnapshot.forEach((docSnapshot) => {
+          const noteRef = doc(db, 'studentNotes', docSnapshot.id);
+          batch.update(noteRef, {
+            userName: userName,
+            userStudentId: studentId,
+            // grade, classNum, number는 일기 작성 시점의 정보이므로 업데이트하지 않음
+            // (학생이 반을 옮긴 경우를 고려)
+          });
+          updateCount++;
+        });
+        
+        // Batch 실행
+        await batch.commit();
+        console.log(`${updateCount}개의 일기 정보가 업데이트되었습니다.`);
+      }
+    } catch (error) {
+      console.error('일기 정보 업데이트 실패:', error);
+      // 일기 업데이트 실패해도 사용자 정보는 업데이트되었으므로 계속 진행
+    }
     
     closeEditProfileModal();
     
