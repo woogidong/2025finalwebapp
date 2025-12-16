@@ -1400,6 +1400,10 @@ async function updateUI(user) {
             <span class="icon">📝</span>
             <span>일기쓰기</span>
           </a>
+          <button class="btn btn-feedback" onclick="openFeedbackViewModal()">
+            <span class="icon">💬</span>
+            <span>피드백 보기</span>
+          </button>
           <button class="btn btn-edit-profile" onclick="openEditProfileModal()">
             <span class="icon">🪪</span>
             <span>개인정보 수정</span>
@@ -1517,6 +1521,135 @@ async function updateUI(user) {
     }
   }
 }
+
+// 피드백 보기 모달 열기
+window.openFeedbackViewModal = async function() {
+  if (!currentUserId || !db) {
+    alert('로그인이 필요합니다.');
+    return;
+  }
+  
+  try {
+    // 피드백이 있는 일기 불러오기
+    const q = query(
+      collection(db, 'studentNotes'),
+      where('userId', '==', currentUserId)
+    );
+    
+    const querySnapshot = await getDocs(q);
+    const feedbackNotes = [];
+    
+    querySnapshot.forEach((docSnapshot) => {
+      const noteData = docSnapshot.data();
+      // 피드백이 있는 일기만 필터링
+      if (noteData.feedback && noteData.feedback.trim().length > 0) {
+        feedbackNotes.push({
+          id: docSnapshot.id,
+          data: noteData
+        });
+      }
+    });
+    
+    // 날짜순으로 정렬 (최신순)
+    feedbackNotes.sort((a, b) => {
+      const dateA = a.data.timestamp ? new Date(a.data.timestamp).getTime() : 0;
+      const dateB = b.data.timestamp ? new Date(b.data.timestamp).getTime() : 0;
+      return dateB - dateA;
+    });
+    
+    // 모달 HTML 생성
+    let feedbackListHTML = '';
+    if (feedbackNotes.length === 0) {
+      feedbackListHTML = '<p class="empty-text">아직 받은 피드백이 없습니다.</p>';
+    } else {
+      feedbackNotes.forEach(({ id, data: note }) => {
+        const date = note.activityDate || '날짜 없음';
+        const time = note.activityTime || '';
+        const emotion = note.emotion || '😊';
+        const feedback = note.feedback || '';
+        const receivedPieToken = note.receivedPieToken || false;
+        
+        feedbackListHTML += `
+          <div class="feedback-item">
+            <div class="feedback-item-header">
+              <span class="feedback-emotion">${emotion}</span>
+              <div class="feedback-item-info">
+                <span class="feedback-date">${date} ${time}</span>
+                ${receivedPieToken ? '<span class="pie-token-badge">🥧 파이 토큰</span>' : ''}
+              </div>
+            </div>
+            <div class="feedback-content">
+              <div class="feedback-text">${feedback.replace(/\n/g, '<br>')}</div>
+            </div>
+          </div>
+        `;
+      });
+    }
+    
+    const modalHTML = `
+      <div id="feedback-view-modal" class="modal">
+        <div class="modal-content modal-content-large">
+          <div class="modal-header">
+            <h2>💬 선생님 피드백</h2>
+            <button class="modal-close" onclick="closeFeedbackViewModal()">&times;</button>
+          </div>
+          <div class="modal-body">
+            <div class="feedback-list-container">
+              ${feedbackListHTML}
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button class="btn btn-cancel" onclick="closeFeedbackViewModal()">닫기</button>
+          </div>
+        </div>
+      </div>
+    `;
+    
+    // 기존 모달 제거
+    const existingModal = document.getElementById('feedback-view-modal');
+    if (existingModal) {
+      existingModal.remove();
+    }
+    
+    // 모달 추가
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    
+    // 모달 외부 클릭 시 닫기
+    const modal = document.getElementById('feedback-view-modal');
+    if (modal) {
+      modal.addEventListener('click', function(e) {
+        if (e.target === modal) {
+          closeFeedbackViewModal();
+        }
+      });
+      
+      // ESC 키로 닫기
+      const escapeHandler = function(e) {
+        if (e.key === 'Escape') {
+          closeFeedbackViewModal();
+          document.removeEventListener('keydown', escapeHandler);
+        }
+      };
+      document.addEventListener('keydown', escapeHandler);
+    }
+    
+    // 스크롤 방지
+    document.body.style.overflow = 'hidden';
+    
+  } catch (error) {
+    console.error('피드백 불러오기 실패:', error);
+    alert('피드백을 불러오는 중 오류가 발생했습니다.');
+  }
+};
+
+// 피드백 보기 모달 닫기
+window.closeFeedbackViewModal = function() {
+  const modal = document.getElementById('feedback-view-modal');
+  if (modal) {
+    modal.remove();
+    document.body.style.overflow = '';
+  }
+};
 
 // 테스트 모드: 특정 날짜의 일기 작성 팝업 열기
 window.openDiaryForDate = function(dateKey, year, month, day) {
